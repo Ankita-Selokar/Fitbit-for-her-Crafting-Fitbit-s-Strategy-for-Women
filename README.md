@@ -22,7 +22,7 @@ The data analysis process consists of the phases, asking, preparing, processing,
 Fitbit by Google is set to launch a new product for women and has tasked you with analyzing smart device usage data. Your objectives include examining how consumers use non-Fitbit smart devices and analyzing insights from Fitbit's female customers to identify trends and preferences. Synthesize these findings into actionable insights and prepare a presentation to inform product development and marketing strategies for the new offering. Your analysis will help ensure the product resonates with female consumers and strengthens Fitbit's market position.
 
 Following three points are the questions needed to be answered by this analysis.
-1. 1. Which fitness tracker brand dominated the market in the last quarter, and how did Fitbit's performance compare to the top competitors in terms of sales and customer satisfaction?
+1. Which fitness tracker brand dominated the market in the last quarter, and how did Fitbit's performance compare to the top competitors in terms of sales and customer satisfaction?
 2. What are some trends in smart device usage?
 3. How could these trends apply to Fitbit customers?
 4. How could these trends help influence Fitbit marketing strategy?
@@ -107,8 +107,69 @@ After cleaning the datasets, I chose to conduct the analysis using SQL in BigQue
 SELECT COUNT(DISTINCT Id) as Total_users
 FROM `market-analysis-fitbit.Fitbit_customer.DailyActivity`
 
+-- User Insights:
+SELECT Id, COUNT(Id) as Total_user_usage
+From `market-analysis-fitbit.Fitbit_customer.DailyActivity`
+GROUP BY id
+
+--Insights Sleep:
+SELECT Id,
+  MIN(HourAsleep) AS min_HourAsleep,
+  MAX(HourAsleep) AS max_HourAsleep
+FROM `market-analysis-fitbit.Fitbit_customer.SleepDay`
+GROUP BY Id
+
+SELECT SleepDay,
+AVG(TotalMinutesAsleep) as Avg_Time_Asleep
+FROM `market-analysis-fitbit.Fitbit_customer.SleepDay`
+GROUP BY SleepDay
+
+-- Hourly Calories Burned:
+SELECT Time,
+  AVG(Calories) as Calories_Burned
+FROM `market-analysis-fitbit.Fitbit_customer.HourlyCalories`
+GROUP BY Time
+
+SELECT a.Id,
+ AVG(a.TotalMinutesAsleep) as Average_Time_Asleep,
+ AVG(b.Calories) as Average_Calories
+FROM `market-analysis-fitbit.Fitbit_customer.SleepDay` AS a
+INNER JOIN `market-analysis-fitbit.Fitbit_customer.DailyCalories` AS b
+ON a.Id = b.Id
+GROUP BY a.Id
+
+--Steps by Hours:
+SELECT
+ActiveHour,
+SUM(StepTotal) AS Total_Steps_By_Hour
+FROM `market-analysis-fitbeat.Fitbeat_customer.HourlySteps`
+GROUP BY ActiveHour
+ORDER BY Total_Steps_By_Hour DESC
+
+--Daily Activities Insights:
+SELECT Id,
+  AVG(VeryActiveMinutes) as VeryActiveMinutesAvg,
+  AVG(FairlyActiveMinutes) as FairlyActiveMinutesAvg,
+  AVG(LightlyActiveMinutes) as LightlyActiveMinutesAvg,
+  AVG(SedentaryMinutes) as SedentaryMinutesAvg
+FROM `market-analysis-fitbit.Fitbit_customer.DailyActivity`
+GROUP BY Id
+
+--According to WHO
+
+SELECT Id,
+  AVG(VeryActiveMinutes) + AVG(FairlyActiveMinutes) AS Total_AVG_Active_Minutes,
+  CASE
+  WHEN AVG(VeryActiveMinutes) + AVG(FairlyActiveMinutes) >= 120 THEN 'Exceeds WHO Recommendations'
+  WHEN AVG(VeryActiveMinutes) + AVG(FairlyActiveMinutes) BETWEEN 60 AND  120 THEN 'Meets WHO Recommendations'
+  WHEN AVG(VeryActiveMinutes) + AVG(FairlyActiveMinutes) < 60 THEN 'Does not meet WHO Recommendations'
+  END WHO_Recommends
+FROM `market-analysis-fitbit.Fitbit_customer.DailyActivity`
+GROUP BY Id
 
 ```
+
+
 
 
 ### 									Thank You
